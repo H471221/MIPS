@@ -1,0 +1,143 @@
+.data
+numbers: .space 40 # allocate 40 bytes for the array of 10 integers
+sum: .word 0 # store the sum of the array elements
+max: .word 0 # store the maximum element of the array
+enter: .asciiz "Please enter 10 integers:\n" # prompt message
+ascending: .asciiz "Numbers in ascending order:\n" # output message
+total: .asciiz "Sum of the input: " # output message
+largest: .asciiz "Largest number in the input: " # output message
+newline: .asciiz "\n" # newline character
+tab: .asciiz "\t" # tab character
+
+.text
+main:
+    # print the prompt message
+    li $v0, 4 # system call code for print string
+    la $a0, enter # load the address of the prompt message
+    syscall # make the system call
+
+    # read 10 integers from user and store them in the array
+    la $t0, numbers # load the address of the array
+    li $t1, 10 # load the size of the array
+    li $t2, 0 # initialize the loop counter i to 0
+read_loop:
+    bge $t2, $t1, sort # if i >= size, go to sort
+    # read an integer from user
+    li $v0, 5 # system call code for read integer
+    syscall # make the system call
+    # store the integer in the array
+    sw $v0, 0($t0) # store the value in $v0 to the address in $t0
+    # update the sum and max
+    lw $t3, sum # load the sum
+    add $t3, $t3, $v0 # add the input to the sum
+    sw $t3, sum # store the sum
+    lw $t4, max # load the max
+    bgt $v0, $t4, update_max # if input > max, go to update_max
+    j read_next # otherwise, go to read_next
+update_max:
+    sw $v0, max # store the input as the new max
+read_next:
+    # increment the loop counter i and the array pointer
+    addi $t2, $t2, 1 # add 1 to i
+    addi $t0, $t0, 4 # add 4 to the address (one word = 4 bytes)
+    j read_loop # go back to the loop
+
+sort:
+    # sort the array in ascending order using bubble sort
+    li $t1, 9 # load the outer loop limit (size - 1)
+    li $t2, 0 # initialize the outer loop counter i to 0
+outer_loop:
+    bge $t2, $t1, print # if i >= size - 1, go to print
+    # initialize the inner loop limit (size - 1 - i)
+    sub $t3, $t1, $t2 # subtract i from size - 1
+    # initialize the inner loop counter j to 0
+    li $t4, 0
+inner_loop:
+    bge $t4, $t3, outer_next # if j >= size - 1 - i, go to outer_next
+    # load the j-th and (j + 1)-th elements of the array
+    sll $t5, $t4, 2 # calculate the offset of j (j * 4)
+    la $t6, numbers # load the address of the array
+    add $t6, $t6, $t5 # calculate the address of numbers[j]
+    lw $t7, 0($t6) # load numbers[j]
+    addi $t8, $t6, 4 # calculate the address of numbers[j + 1]
+    lw $t9, 0($t8) # load numbers[j + 1]
+    # compare the j-th and (j + 1)-th elements
+    bgt $t7, $t9, swap # if numbers[j] > numbers[j + 1], go to swap
+    j inner_next # otherwise, go to inner_next
+swap:
+    # swap the j-th and (j + 1)-th elements
+    sw $t7, 0($t8) # store numbers[j] in numbers[j + 1]
+    sw $t9, 0($t6) # store numbers[j + 1] in numbers[j]
+inner_next:
+    # increment the inner loop counter j
+    addi $t4, $t4, 1 # add 1 to j
+    j inner_loop # go back to the inner loop
+
+outer_next:
+    # increment the outer loop counter i
+    addi $t2, $t2, 1 # add 1 to i
+    j outer_loop # go back to the outer loop
+
+print:
+    # print the output message
+    li $v0, 4 # system call code for print string
+    la $a0, ascending # load the address of the output message
+    syscall # make the system call
+
+    # print the array elements in ascending order
+    la $t0, numbers # load the address of the array
+    li $t1, 10 # load the size of the array
+    li $t2, 0 # initialize the loop counter i to 0
+print_loop:
+    bge $t2, $t1, print_sum # if i >= size, go to print_sum
+    # load the i-th element of the array
+    lw $a0, 0($t0) # load the value from the address in $t0
+    # print the element
+    li $v0, 1 # system call code for print integer
+    syscall # make the system call
+    # print a tab
+    li $v0, 4 # system call code for print string
+    la $a0, tab # load the address of the tab character
+    syscall # make the system call
+    # increment the loop counter i and the array pointer
+    addi $t2, $t2, 1 # add 1 to i
+    addi $t0, $t0, 4 # add 4 to the address (one word = 4 bytes)
+    j print_loop # go back to the loop
+
+print_sum:
+    # print a newline
+    li $v0, 4 # system call code for print string
+    la $a0, newline # load the address of the newline character
+    syscall # make the system call
+
+    # print the total message
+    li $v0, 4 # system call code for print string
+    la $a0, total # load the address of the total message
+    syscall # make the system call
+    # print the sum
+    lw $a0, sum # load the sum
+    li $v0, 1 # system call code for print integer
+    syscall # make the system call
+
+    # print a newline
+    li $v0, 4 # system call code for print string
+    la $a0, newline # load the address of the newline character
+    syscall # make the system call
+
+    # print the largest message
+    li $v0, 4 # system call code for print string
+    la $a0, largest # load the address of the largest message
+    syscall # make the system call
+    # print the max
+    lw $a0, max # load the max
+    li $v0, 1 # system call code for print integer
+    syscall # make the system call
+
+    # print a newline
+    li $v0, 4 # system call code for print string
+    la $a0, newline # load the address of the newline character
+    syscall # make the system call
+
+    # exit the program
+    li $v0, 10 # system call code for exit
+    syscall # make the system call
