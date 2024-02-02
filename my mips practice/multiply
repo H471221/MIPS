@@ -1,36 +1,40 @@
 #THIS PROGRAM MULTIPLY 2 NUMBER
 	
 .data
-	MSG1: .asciiz "Enter 1st integer"
-	MSG2: .asciiz "Enter 2nd integer"
-	
+	MSG1: .asciiz "Enter 1st integer "
+	MSG2: .asciiz "Enter 2nd integer "
+	MULTIPLY: .asciiz "multiply product of 1st and 2nd integer is: "
+	newline: .asciiz "\n"
 .text 
-	#prompt for 1st integer
+main:
 	li $v0,4
 	la $a0,MSG1
 	syscall
 	
-	#read 1st integer and store to register $t0
 	li $v0,5
-	move $t0,$v0
 	syscall
+	move $t1,$v0
 	
-	#prompt 2nd integer
 	li $v0,4
 	la $a0,MSG2
 	syscall
 	
-	#read 2nd integer and store to register $t1
 	li $v0,5
-	move $t1,$v0
 	syscall
-
-	#NOW, register $t0 and $t1 has value
-
-	#do multiply operation and store the value in register $t3
-	mult $t1,$t2
+	move $t2,$v0
+	
+	mult $t1, $t2
+	mflo $t3
+	
+	li $v0,4
+	la $a0,MULTIPLY
+	syscall
+	
+	li $v0,1
+	move $a0,$t3
 	syscall
 	
 	#exit program
 	li $v0, 10
 	syscall
+		

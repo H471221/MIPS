@@ -2,6 +2,7 @@
 
 .data
 
+newLine: .asciiz "\n"
 myMsg: .asciiz "Provide two integers: "
 addMsg: .asciiz "Sum of numbers: "
 subMsg: .asciiz "Difference of numbers: "
@@ -28,10 +29,15 @@ main:
 	la $a0, addMsg
 	syscall
 
-	div $a0, $t0, $t1
+	add $a0, $t0, $t1
 	li $v0, 1
 	syscall
-
+	
+	#add a new line
+	li $v0, 4
+	la $a0, newLine
+	syscall 
+	
 	# subtract and display
 	li $v0, 4
 	la $a0, subMsg

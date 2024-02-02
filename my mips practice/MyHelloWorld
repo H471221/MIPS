@@ -1,0 +1,19 @@
+#this is my hello world program 
+.data
+	text1: .asciiz "Hello World!\n"
+	text2: .asciiz "My name is Hafizzi\n"
+	text3: .asciiz "and I'm still striving to learn MIPS\n"
+
+.text
+main:
+	li $v0,4
+	
+	la $a0,text1 
+	syscall
+	la $a0,text2
+	syscall
+	la $a0,text3
+	syscall
+	
+	li $v0,10
+	syscall
